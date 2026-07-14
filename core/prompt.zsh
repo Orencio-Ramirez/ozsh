@@ -62,16 +62,34 @@ __zsh_prompt_top() {
 __zsh_prompt_bottom() {
 
     local parts=()
+    local host_color user_color
 
-    # Usuario / root
-    parts+="${C_USER}$(root::symbol)${C_RESET}"
+    #######################################################################
+    # Colores de host y usuario
+    #######################################################################
+
+    # Usuario root siempre en rojo
+    if (( EUID == 0 )); then
+        user_color="$C_ERROR"
+    else
+        user_color="$C_USER"
+    fi
+
+    # Host rojo únicamente si es una sesión SSH
+    if [[ "$__ZSH_IN_SSH" -eq 1 ]]; then
+        host_color="$C_ERROR"
+    else
+        host_color="$user_color"
+    fi
+
+    # Host@usuario
+    parts+="${host_color}%m${C_RESET}${C_GRAY}@${C_RESET}${user_color}%n${C_RESET}"
 
     # Path
-    parts+=" ${C_PATH}%~${C_RESET}"
+    parts+="${C_PATH}%~${C_RESET}"
 
     # Git
     if [[ -n "$__ZSH_GIT_BRANCH" ]]; then
-
         if [[ "$__ZSH_GIT_DIRTY" -eq 1 ]]; then
             parts+=" ${C_GIT}${I_GIT} ${__ZSH_GIT_BRANCH}*${C_RESET}"
         else
@@ -89,7 +107,7 @@ __zsh_prompt_bottom() {
         parts+=" ${C_DOCKER}${I_DOCKER}${C_RESET}"
     fi
 
-    printf "%s\n" "${(j:   :)parts}"
+    printf "%s\n" "${(j: :)parts}"
 }
 
 ###########################################################################
