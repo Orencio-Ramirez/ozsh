@@ -1,64 +1,57 @@
 ###########################################################################
 # modules/git.zsh
 #
-# Estado de Git para el prompt.
+# Estado Git para el prompt.
 #
 # IMPORTANTE:
-# - No se ejecuta en cada prompt
-# - Solo se actualiza al cambiar de directorio (chpwd)
-#
-# Objetivo: cero coste en precmd.
+# - No registra hooks.
+# - git::update() debe llamarse desde precmd.
 ###########################################################################
 
-autoload -Uz add-zsh-hook
-
 ###########################################################################
-# Variables globales del estado Git
+# Variables globales
 ###########################################################################
 
 typeset -g __ZSH_GIT_BRANCH=""
-typeset -g __ZSH_GIT_DIRTY=0
-typeset -g __ZSH_IN_GIT_REPO=0
-
-###########################################################################
-# git::detect()
-#
-# Detecta si estamos en un repositorio Git.
-###########################################################################
-
-git::detect() {
-
-    git rev-parse --is-inside-work-tree >/dev/null 2>&1
-
-}
+integer -g __ZSH_GIT_DIRTY=0
+integer -g __ZSH_IN_GIT_REPO=0
 
 ###########################################################################
 # git::update()
 #
-# Actualiza TODO el estado Git.
-# Se ejecuta SOLO en chpwd.
+# Actualiza el estado del repositorio Git.
 ###########################################################################
 
 git::update() {
 
-    if ! git::detect; then
-        __ZSH_IN_GIT_REPO=0
-        __ZSH_GIT_BRANCH=""
-        __ZSH_GIT_DIRTY=0
-        return
+    local branch
+
+    #######################################################################
+    # Detectar rama actual
+    #######################################################################
+
+    branch=$(git branch --show-current 2>/dev/null)
+
+    #######################################################################
+    # Detached HEAD
+    #######################################################################
+
+    if [[ -z $branch ]]; then
+        branch=$(git rev-parse --short HEAD 2>/dev/null) || {
+            __ZSH_IN_GIT_REPO=0
+            __ZSH_GIT_BRANCH=""
+            __ZSH_GIT_DIRTY=0
+            return
+        }
     fi
 
     __ZSH_IN_GIT_REPO=1
+    __ZSH_GIT_BRANCH=$branch
 
-    # Rama actual (rápido y sin forks pesados)
-    __ZSH_GIT_BRANCH=$(git symbolic-ref --quiet --short HEAD 2>/dev/null)
+    #######################################################################
+    # Estado dirty
+    #######################################################################
 
-    # Si no hay rama (detached HEAD)
-    if [[ -z "$__ZSH_GIT_BRANCH" ]]; then
-        __ZSH_GIT_BRANCH=$(git rev-parse --short HEAD 2>/dev/null)
-    fi
-
-    # Estado dirty (solo staged/unstaged)
     if git diff --quiet --ignore-submodules --cached &&
        git diff --quiet --ignore-submodules; then
         __ZSH_GIT_DIRTY=0
@@ -68,37 +61,7 @@ git::update() {
 }
 
 ###########################################################################
-# git::symbol()
-#
-# Devuelve representación visual para el prompt.
-###########################################################################
-
-git::symbol() {
-
-    [[ $__ZSH_IN_GIT_REPO -eq 1 ]] || return
-
-    local status_symbol=""
-
-    if [[ "$__ZSH_GIT_DIRTY" -eq 1 ]]; then
-        status_symbol="*"
-    fi
-
-    printf "%s %s%s" \
-        "$I_GIT" \
-        "$__ZSH_GIT_BRANCH" \
-        "$status_symbol"
-
-}
-
-###########################################################################
-# Hook: cambio de directorio
-###########################################################################
-
-__zsh_git_chpwd() {
-    git::update
-}
-
-add-zsh-hook chpwd __zsh_git_chpwd
-
 # Inicialización
+###########################################################################
+
 git::update

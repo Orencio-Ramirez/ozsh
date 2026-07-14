@@ -8,7 +8,7 @@
 # Solo presencia de archivos.
 ###########################################################################
 
-typeset -g __ZSH_DOCKER_PROJECT=0
+integer -g __ZSH_DOCKER_PROJECT=0
 
 ###########################################################################
 # docker::update()
@@ -16,47 +16,22 @@ typeset -g __ZSH_DOCKER_PROJECT=0
 
 docker::update() {
 
-    local files=(
-        docker-compose.yml
-        docker-compose.yaml
-        compose.yml
-        compose.yaml
-        Dockerfile
-        devcontainer.json
-    )
-
-    local f
-
-    for f in "${files[@]}"; do
-        if [[ -f "$f" ]]; then
-            __ZSH_DOCKER_PROJECT=1
-            return
-        fi
-    done
-
-    __ZSH_DOCKER_PROJECT=0
-}
-
-###########################################################################
-# docker::symbol()
-###########################################################################
-
-docker::symbol() {
-
-    [[ $__ZSH_DOCKER_PROJECT -eq 1 ]] || return
-
-    printf "%s" "$I_DOCKER"
-
+    if [[ -f Dockerfile            ||
+          -f docker-compose.yml    ||
+          -f docker-compose.yaml   ||
+          -f compose.yml           ||
+          -f compose.yaml          ||
+          -f devcontainer.json ]]; then
+        __ZSH_DOCKER_PROJECT=1
+    else
+        __ZSH_DOCKER_PROJECT=0
+    fi
 }
 
 ###########################################################################
 # Hook
 ###########################################################################
 
-__zsh_docker_chpwd() {
-    docker::update
-}
-
-add-zsh-hook chpwd __zsh_docker_chpwd
+add-zsh-hook chpwd docker::update
 
 docker::update
