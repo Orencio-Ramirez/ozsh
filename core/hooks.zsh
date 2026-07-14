@@ -37,8 +37,10 @@ __zsh_precmd() {
         __ZSH_LAST_CMD_TIME=0
     fi
 
-    timer::update
     git::update
+    python::update
+    timer::update
+
 }
 
 ###########################################################################
