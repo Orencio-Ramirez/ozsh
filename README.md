@@ -41,7 +41,7 @@ Este proyecto está construido bajo 3 principios:
 ## 🚀 Instalación
 
 ```bash
-git clone https://github.com/Orencio-Ramirez/ozsh.git .
+git clone https://github.com/Orencio-Ramirez/ozsh.git
 cd $HOME/ozsh
 ./install.sh
 ```

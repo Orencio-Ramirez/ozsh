@@ -151,6 +151,7 @@ source $ZSH_CONFIG/modules/python.zsh
 source $ZSH_CONFIG/modules/ssh.zsh
 source $ZSH_CONFIG/modules/root.zsh
 source $ZSH_CONFIG/modules/timer.zsh
+source $ZSH_CONFIG/modules/terraform.zsh
 
 source $ZSH_CONFIG/plugins/fzf.zsh
 source $ZSH_CONFIG/plugins/zoxide.zsh
