@@ -79,7 +79,7 @@ __zsh_prompt_bottom() {
     if [[ "$__ZSH_IN_SSH" -eq 1 ]]; then
         host_color="$C_ERROR"
     else
-        host_color="$user_color"
+        host_color="$C_USER"
     fi
 
     # Host@usuario
