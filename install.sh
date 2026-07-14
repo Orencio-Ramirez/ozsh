@@ -135,6 +135,9 @@ create_zshrc() {
 export ZSH_DIR="$HOME/ozsh"
 export ZSH_CONFIG="$ZSH_DIR"
 
+zmodload zsh/datetime
+
+
 source $ZSH_CONFIG/core/options.zsh
 source $ZSH_CONFIG/core/exports.zsh
 source $ZSH_CONFIG/core/colors.zsh

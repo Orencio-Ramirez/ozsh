@@ -4,8 +4,8 @@
 # Corrección del sistema de medición de tiempo.
 ###########################################################################
 
-typeset -g __ZSH_CMD_START=0
-typeset -g __ZSH_LAST_CMD_TIME=0
+typeset -gF __ZSH_CMD_START=0
+typeset -gF __ZSH_LAST_CMD_TIME=0
 typeset -g __ZSH_LAST_EXIT=0
 
 ###########################################################################
@@ -26,13 +26,18 @@ __zsh_preexec() {
 
 __zsh_precmd() {
 
-    __ZSH_LAST_EXIT=$?
+    local last_exit=$?
 
-    if [[ -n "$__ZSH_CMD_START" && "$__ZSH_CMD_START" != "0" ]]; then
+    __ZSH_LAST_EXIT=$last_exit
+
+    if (( __ZSH_CMD_START > 0 )); then
         __ZSH_LAST_CMD_TIME=$(( EPOCHREALTIME - __ZSH_CMD_START ))
+        __ZSH_CMD_START=0
     else
         __ZSH_LAST_CMD_TIME=0
     fi
+
+    timer::update
 }
 
 ###########################################################################

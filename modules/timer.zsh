@@ -14,18 +14,16 @@ typeset -g __ZSH_TIMER=0
 
 timer::update() {
 
-    local t="$__ZSH_LAST_CMD_TIME"
+    local -F t=$__ZSH_LAST_CMD_TIME
 
     __ZSH_TIMER=""
 
-    # No mostrar si es menor de 1 segundo
-    (( $(echo "$t < 1" | bc -l 2>/dev/null) )) && return
-
-    # ms si es pequeño
-    if (( $(echo "$t < 10" | bc -l 2>/dev/null) )); then
-        __ZSH_TIMER="$(printf "%.0fms" "$(echo "$t * 1000" | bc -l)")"
+    if (( t < 1.0 )); then
+        return
+    elif (( t < 10.0 )); then
+        printf -v __ZSH_TIMER "%.0fms" "$(( t * 1000.0 ))"
     else
-        __ZSH_TIMER="$(printf "%.2fs" "$t")"
+        printf -v __ZSH_TIMER "%.2fs" "$t"
     fi
 }
 
