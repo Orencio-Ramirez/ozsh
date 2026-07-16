@@ -1,148 +1,226 @@
-# Orencio's ZSH Modular Config
+# ozsh
 
-Un sistema de configuración de ZSH modular, rápido y completamente basado en diseño por capas.
+Configuración modular de **Zsh** orientada a administradores de sistemas, ingenieros DevOps y usuarios avanzados de Linux.
 
-No es un “dotfiles suelto”. Es un sistema.
+El objetivo de **ozsh** es proporcionar un entorno de trabajo rápido, mantenible y predecible, evitando frameworks pesados y manteniendo una arquitectura sencilla basada en módulos independientes.
+
+![License](https://img.shields.io/badge/license-GPLv3-blue.svg)
+![Shell](https://img.shields.io/badge/shell-zsh-green.svg)
+![Platform](https://img.shields.io/badge/platform-Debian%2013%2B-red.svg)
+
+---
+
+## 🚀 Características
+
+### Prompt
+
+* Diseño limpio de dos líneas.
+* Fecha y hora.
+* Tiempo de ejecución del último comando.
+* Código de salida visible.
+* Indicador de sesión SSH.
+* Detección de usuario root.
+* Rama y estado de Git.
+* Entorno virtual de Python.
+* Detección de proyectos Docker.
+
+### Experiencia de uso
+
+* Autocompletado avanzado.
+* Autosuggestions estilo Fish.
+* Syntax Highlighting en tiempo real.
+* Integración con FZF.
+* Navegación inteligente mediante Zoxide.
+* Integración automática con Direnv.
+* Sustitución moderna de `ls` mediante Eza.
+* Visualización mejorada de archivos mediante Bat.
 
 ---
 
 ## 🧠 Filosofía
 
-Este proyecto está construido bajo 3 principios:
+ozsh sigue tres principios fundamentales:
 
-- El prompt NO calcula nada
-- El estado se actualiza fuera del prompt
-- Todo está separado por responsabilidad
+* **El prompt nunca calcula información.**
+* **El estado se actualiza mediante hooks.**
+* **Cada módulo tiene una única responsabilidad.**
 
----
-
-## ⚡ Características
-
-### Prompt
-- 2 líneas
-- tiempo de ejecución de comandos
-- exit code visible
-- SSH indicator
-- root detection
-- Git branch + dirty state
-- Python venv
-- Docker project detection
-
-### UX
-- autosuggestions estilo Fish
-- syntax highlighting en tiempo real
-- fzf integrado (historial, archivos, cd)
-- navegación inteligente con zoxide
-- direnv automático por proyecto
-- ls moderno con eza
+Esto permite mantener un prompt rápido y sencillo de mantener.
 
 ---
 
-## 🚀 Instalación
+## ❓ ¿Por qué ozsh?
+
+Existen excelentes frameworks como Oh My Zsh, Prezto, Zinit o Antidote.
+
+ozsh adopta un enfoque diferente.
+
+En lugar de proporcionar cientos de plugins y capas de abstracción, se centra en ofrecer una configuración pequeña, modular y completamente explícita.
+
+Cada archivo tiene una única responsabilidad y todo el código puede entenderse fácilmente sin necesidad de conocer un framework.
+
+---
+
+## 📋 Requisitos
+
+Actualmente el proyecto soporta oficialmente:
+
+* Debian 13 o superior.
+* Conexión a Internet durante la instalación.
+
+El soporte para Fedora está previsto en futuras versiones.
+
+---
+
+## 🔤 Fuente recomendada
+
+ozsh utiliza iconos de **Nerd Fonts** para representar el estado del sistema y mejorar la legibilidad del prompt.
+
+Se recomienda utilizar:
+
+* **JetBrainsMono Nerd Font**
+
+Sin una Nerd Font instalada, la configuración seguirá funcionando correctamente, pero algunos iconos aparecerán como caracteres Unicode sin representar.
+
+---
+
+## ⚙️ Instalación
 
 ```bash
-git clone https://github.com/Orencio-Ramirez/ozsh.git
-cd $HOME/ozsh
+git clone https://github.com/Orencio-Ramirez/ozsh.git "$HOME/ozsh"
+
+cd "$HOME/ozsh"
+
+chmod +x install.sh
+
 ./install.sh
 ```
+
+El instalador:
+
+* Detecta automáticamente el sistema operativo.
+* Instala las dependencias necesarias.
+* Descarga o actualiza los plugins externos.
+* Genera un `.zshrc` limpio.
+* Configura Zsh como shell por defecto.
+* Puede ejecutarse varias veces de forma segura.
+
+Al finalizar la instalación es recomendable cerrar la sesión e iniciarla de nuevo.
 
 ---
 
 ## 📦 Dependencias
 
-Instaladas automáticamente en Debian:
+### Instaladas mediante el gestor de paquetes
 
 * zsh
 * git
+* curl
 * fzf
 * eza
+* bat
 * direnv
 * zoxide
-* bat
-* curl
 
-Descargadas desde git:
+### Plugins externos
 
-* zsh-syntax-highlight
 * zsh-completions
-* zsh-autosugestions
+* zsh-autosuggestions
 * zsh-syntax-highlighting
+* zsh-history-substring-search
 
 ---
 
-## 🧪 Benchmark
+## 📁 Estructura del proyecto
 
-El objetivo del sistema es mantener el prompt extremadamente ligero.
+```text
+ozsh/
 
-Mediciones típicas:
-
-* cold start: ~10–20ms
-* prompt render: <1ms (sin lógica externa)
+├── core/          # Configuración base
+├── modules/       # Módulos del prompt
+├── plugins/       # Integración con herramientas
+├── externos/      # Plugins descargados automáticamente
+├── install.sh
+├── LICENSE
+├── README.md
+└── VERSION
+```
 
 ---
 
-## 🧩 Diseño
+## ⚡ Rendimiento
 
-### ❌ Anti-patterns evitados
+El objetivo principal de ozsh es mantener un prompt rápido y con un coste constante.
 
-* Git ejecutado en cada prompt
-* parsing de estado en render
-* lógica dentro del prompt
-* plugins monolíticos
+Valores habituales en Debian 13:
 
-### ✅ Diseño actual
+* Inicio de Zsh: ~70 ms.
+* Sin consultas a Git durante el renderizado.
+* Estado precalculado mediante hooks.
+* Sin lógica compleja dentro del prompt.
 
-* estado precalculado
-* hooks centralizados
-* módulos independientes
-* prompt puro
+---
+
+## 🏗️ Diseño
+
+### Se evita
+
+* Frameworks pesados.
+* Lógica dentro del prompt.
+* Consultas a Git durante cada renderizado.
+* Código monolítico.
+* Dependencias innecesarias.
+
+### Se prioriza
+
+* Modularidad.
+* Simplicidad.
+* Legibilidad.
+* Bajo consumo de recursos.
+* Mantenimiento a largo plazo.
 
 ---
 
 ## 🎨 Personalización
 
-Colores e iconos se controlan desde:
+Los principales elementos visuales pueden modificarse desde:
 
-```
+```text
 core/colors.zsh
 core/icons.zsh
 ```
 
----
-
-## 🔧 Tema
-
-Soporte para temas:
-
-* nord
-* dracula
-* catppuccin
-* tokyonight
+La configuración está organizada por responsabilidad, por lo que resulta sencillo añadir, eliminar o modificar módulos.
 
 ---
 
-## 🧠 Ejemplo visual
+## 🖥️ Vista previa
 
-```
+```text
 󰥔 2026-06-28 22:41:12   ⏱ 1.24s   ✘127   󰌘 SSH
 
 user ~/projects/homelab   main*  🐍 venv  🐳
 ❯
 ```
 
+> **Próximamente:** captura de pantalla del prompt utilizando JetBrainsMono Nerd Font.
+
 ---
 
 ## 📌 Estado del proyecto
 
-Este sistema está diseñado para ser:
+ozsh se encuentra en desarrollo activo.
 
-* mantenible a largo plazo
-* extensible
-* rápido
-* reproducible
+Los objetivos principales del proyecto son:
+
+* Rapidez.
+* Modularidad.
+* Reproducibilidad.
+* Código sencillo de mantener.
+* Entorno de trabajo orientado a administración de sistemas y DevOps.
 
 ---
 
-## 🧭 Objetivo
+## 📄 Licencia
 
-Crear un entorno de shell que se sienta como un IDE ligero en terminal, sin frameworks pesados ni dependencias ocultas.
+Este proyecto se distribuye bajo los términos de la **GNU General Public License v3.0 (GPL-3.0)**.
