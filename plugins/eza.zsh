@@ -25,7 +25,7 @@ fi
 ###########################################################################
 
 # Opciones comunes para todos los comandos eza
-export EZA_OPTIONS="--icons --git --group-directories-first"
+export EZA_OPTIONS="--icons --git --group-directories-first --group"
 
 ###########################################################################
 # Alias principales
