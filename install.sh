@@ -21,7 +21,7 @@ set -Eeuo pipefail
 ###############################################################################
 
 readonly SCRIPT_NAME="$(basename "$0")"
-readonly VERSION="$(<"$ZSH_DIR/VERSION")"
+readonly OZSH_VERSION="$(<"$ZSH_DIR/VERSION")"
 readonly ZSH_DIR="$HOME/ozsh"
 readonly ZSHRC="$HOME/.zshrc"
 readonly BACKUP="$HOME/.zshrc.backup.$(date +%Y%m%d%H%M%S)"
@@ -335,7 +335,7 @@ change_shell() {
 # Instalación
 ###############################################################################
 
-info "Instalando ozsh $VERSION"
+info "Instalando ozsh $OZSH_VERSION"
 run_step "Comprobando requisitos" check_requirements
 run_step "Comprobando conexión de red" check_network
 run_step "Solicitando privilegios" check_sudo
