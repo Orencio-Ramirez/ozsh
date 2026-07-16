@@ -157,6 +157,7 @@ source $ZSH_CONFIG/modules/timer.zsh
 source $ZSH_CONFIG/modules/terraform.zsh
 
 source $ZSH_CONFIG/plugins/fzf.zsh
+source $ZSH_CONFIG/plugins/bat.zsh
 source $ZSH_CONFIG/plugins/zoxide.zsh
 source $ZSH_CONFIG/plugins/direnv.zsh
 source $ZSH_CONFIG/plugins/eza.zsh

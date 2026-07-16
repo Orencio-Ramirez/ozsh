@@ -46,5 +46,13 @@ export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export FZF_DEFAULT_OPTS="--height=40% --layout=reverse --border --info=inline"
 
 ###########################################################################
+# less
+###########################################################################
+
+# Tratar los caracteres de las áreas de uso privado (Nerd Fonts)
+# como imprimibles.
+export LESSUTFCHARDEF="E000-F8FF:p,F0000-FFFFD:p,100000-10FFFD:p"
+
+###########################################################################
 # Fin
 ###########################################################################
