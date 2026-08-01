@@ -17,27 +17,6 @@ else
 fi
 
 ###########################################################################
-# Comprobación de existencia del complemento Linux
-###########################################################################
-
-[[ -d /usr/share/zsh/functions/Completion/Linux ]] &&
-    fpath=(/usr/share/zsh/functions/Completion/Linux $fpath)
-
-###########################################################################
-# Comprobación de existencia del complemento Debian
-###########################################################################
-
-[[ -d /usr/share/zsh/functions/Completion/Debian ]] &&
-    fpath=(/usr/share/zsh/functions/Completion/Debian $fpath)
-
-###########################################################################
-# Comprobación de existencia del complemento Unix
-###########################################################################
-
-[[ -d /usr/share/zsh/functions/Completion/Unix ]] &&
-    fpath=(/usr/share/zsh/functions/Completion/Unix $fpath)
-
-###########################################################################
 # Cargamos el Plugin
 ###########################################################################
 autoload -Uz compinit
