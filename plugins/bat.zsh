@@ -9,14 +9,22 @@
 # - integración con Git
 # - paginación automática
 #
-# En Debian el ejecutable se llama "batcat".
+# El nombre del ejecutable varía según la distribución:
+#   - Fedora y derivadas (RHEL, CentOS Stream, Rocky, AlmaLinux): "bat"
+#   - Debian, Ubuntu y derivadas: "batcat"
+#     (el paquete "bat" en Debian/Ubuntu instala el binario como "batcat"
+#     por un conflicto de nombre con otro paquete preexistente)
 ###########################################################################
 
 ###########################################################################
-# Comprobación de existencia
+# Detección del ejecutable
 ###########################################################################
 
-if ! command -v batcat >/dev/null 2>&1; then
+if command -v bat >/dev/null 2>&1; then
+    BAT_CMD="bat"
+elif command -v batcat >/dev/null 2>&1; then
+    BAT_CMD="batcat"
+else
     return
 fi
 
@@ -32,10 +40,17 @@ export BAT_OPTIONS="--style=numbers,changes --paging=auto"
 ###########################################################################
 
 # Alias estándar
-alias cat="batcat $BAT_OPTIONS"
+alias cat="$BAT_CMD $BAT_OPTIONS"
 
-# Mantener acceso al ejecutable original con opciones
-alias bat="batcat $BAT_OPTIONS"
+# Mantener acceso al ejecutable con opciones bajo el nombre "bat",
+# independientemente de cómo se llame el binario real.
+alias bat="$BAT_CMD $BAT_OPTIONS"
+
+###########################################################################
+# Limpieza
+###########################################################################
+
+unset BAT_CMD
 
 ###########################################################################
 # Fin

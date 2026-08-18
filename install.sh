@@ -5,7 +5,8 @@
 # Instalador del entorno ZSH.
 #
 # Características
-#   - Detecta automáticamente la distribución.
+#   - Detecta automáticamente la distribución (Debian, Ubuntu y derivadas,
+#     además de Fedora).
 #   - Instala las dependencias necesarias.
 #   - Descarga o actualiza los plugins externos.
 #   - Genera un .zshrc limpio.
@@ -21,21 +22,41 @@ set -Eeuo pipefail
 ###############################################################################
 
 readonly SCRIPT_NAME="$(basename "$0")"
-readonly OZSH_VERSION="$(<"$ZSH_DIR/VERSION")"
 readonly ZSH_DIR="$HOME/ozsh"
 readonly ZSHRC="$HOME/.zshrc"
 readonly BACKUP="$HOME/.zshrc.backup.$(date +%Y%m%d%H%M%S)"
 readonly PLUGIN_DIR="$ZSH_DIR/externos"
+readonly LOG_FILE="$HOME/ozsh-install.log"
+
+# OZSH_VERSION se resuelve más adelante, una vez comprobado que
+# $ZSH_DIR existe (ver check_requirements + set_version).
+OZSH_VERSION=""
 
 ###############################################################################
-# Colores
+# Colores (solo si la salida es un terminal)
 ###############################################################################
 
-readonly RED="\033[31m"
-readonly GREEN="\033[32m"
-readonly YELLOW="\033[33m"
-readonly BLUE="\033[34m"
-readonly RESET="\033[0m"
+if [[ -t 1 ]]; then
+    readonly RED="\033[31m"
+    readonly GREEN="\033[32m"
+    readonly YELLOW="\033[33m"
+    readonly BLUE="\033[34m"
+    readonly RESET="\033[0m"
+else
+    readonly RED=""
+    readonly GREEN=""
+    readonly YELLOW=""
+    readonly BLUE=""
+    readonly RESET=""
+fi
+
+###############################################################################
+# Logging
+###############################################################################
+
+# Todo lo que se imprima a partir de aquí queda también registrado en
+# $LOG_FILE, conservando la salida por pantalla.
+exec > >(tee -a "$LOG_FILE") 2>&1
 
 ###############################################################################
 # Mensajes
@@ -66,10 +87,36 @@ on_error() {
     error "Error durante la instalación."
     error "Línea : ${BASH_LINENO[0]}"
     error "Código: ${exit_code}"
+    error "Log completo en: $LOG_FILE"
     exit "${exit_code}"
 }
 
 trap on_error ERR
+
+###############################################################################
+# Sudo keep-alive
+###############################################################################
+
+SUDO_KEEPALIVE_PID=""
+
+start_sudo_keepalive() {
+    # Refresca el timestamp de sudo cada 60s en segundo plano para que
+    # instalaciones largas no pidan la contraseña de nuevo a mitad de proceso.
+    while true; do
+        sudo -n true
+        sleep 60
+    done 2>/dev/null &
+    SUDO_KEEPALIVE_PID="$!"
+}
+
+stop_sudo_keepalive() {
+    if [[ -n "$SUDO_KEEPALIVE_PID" ]]; then
+        kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
+        wait "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
+    fi
+}
+
+trap stop_sudo_keepalive EXIT
 
 ###############################################################################
 # Ejecutar paso
@@ -109,6 +156,19 @@ check_requirements() {
     if [[ ! -f "$ZSH_DIR/install.sh" ]]; then
         warning "No parece que estés ejecutando el instalador desde el repositorio."
     fi
+    if [[ ! -f "$ZSH_DIR/VERSION" ]]; then
+        error "No se encontró el archivo VERSION en:"
+        error "  $ZSH_DIR/VERSION"
+        exit 1
+    fi
+}
+
+###############################################################################
+# Resolver versión de ozsh
+###############################################################################
+
+set_version() {
+    OZSH_VERSION="$(<"$ZSH_DIR/VERSION")"
 }
 
 ###############################################################################
@@ -121,11 +181,17 @@ detect_os() {
         exit 1
     fi
     source /etc/os-release
-    case "$ID" in
-        debian)
+
+    # Se comprueba tanto ID como ID_LIKE para cubrir todas las distros
+    # derivadas de Debian (Ubuntu, Linux Mint, Pop!_OS, elementary OS,
+    # Zorin OS, Raspberry Pi OS, MX Linux, Kali, etc.), no solo Debian puro.
+    local id_like="${ID_LIKE:-}"
+
+    case "$ID $id_like" in
+        *debian*|*ubuntu*)
             OS="debian"
             ;;
-        fedora)
+        *fedora*)
             OS="fedora"
             ;;
         *)
@@ -133,7 +199,7 @@ detect_os() {
             exit 1
             ;;
     esac
-    success "Sistema detectado: $PRETTY_NAME"
+    success "Sistema detectado: $PRETTY_NAME (familia: $OS)"
 }
 
 ###############################################################################
@@ -169,6 +235,7 @@ check_git() {
 
 check_sudo() {
     sudo -v
+    start_sudo_keepalive
     success "Privilegios concedidos"
 }
 
@@ -225,9 +292,18 @@ install_plugin() {
     dir="$PLUGIN_DIR/$name"
     if [[ -d "$dir/.git" ]]; then
         info "Actualizando $name"
-        git -C "$dir" pull \
-            --ff-only \
-            --quiet
+        # Los clones son --depth=1, así que un pull --ff-only puede fallar
+        # si el remoto reescribió historia. Como son plugins de solo
+        # lectura (no se hacen commits locales), es más robusto forzar
+        # el estado al del remoto.
+        git -C "$dir" fetch \
+            --depth=1 \
+            --quiet \
+            origin
+        git -C "$dir" reset \
+            --hard \
+            --quiet \
+            origin/HEAD
     else
         info "Descargando $name"
         git clone \
@@ -335,8 +411,10 @@ change_shell() {
 # Instalación
 ###############################################################################
 
-info "Instalando ozsh $OZSH_VERSION"
 run_step "Comprobando requisitos" check_requirements
+run_step "Resolviendo versión" set_version
+
+info "Instalando ozsh $OZSH_VERSION"
 run_step "Comprobando conexión de red" check_network
 run_step "Solicitando privilegios" check_sudo
 run_step "Detectando sistema operativo" detect_os

@@ -65,7 +65,8 @@ Cada archivo tiene una única responsabilidad y todo el código puede entenderse
 
 Actualmente el proyecto soporta oficialmente:
 
-* Debian 13 o superior.
+* Debian 13 y sus deribados.
+* Fedora 42 y familiares.
 * Conexión a Internet durante la instalación.
 
 El soporte para Fedora está previsto en futuras versiones.
@@ -152,22 +153,12 @@ ozsh/
 
 El objetivo principal de ozsh es mantener un prompt rápido y con un coste constante.
 
-Valores habituales en Debian 13:
-
-* Inicio de Zsh: ~70 ms.
-* Sin consultas a Git durante el renderizado.
-* Estado precalculado mediante hooks.
-* Sin lógica compleja dentro del prompt.
-
----
-
 ## 🏗️ Diseño
 
 ### Se evita
 
 * Frameworks pesados.
 * Lógica dentro del prompt.
-* Consultas a Git durante cada renderizado.
 * Código monolítico.
 * Dependencias innecesarias.
 
