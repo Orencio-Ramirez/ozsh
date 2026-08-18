@@ -6,7 +6,9 @@ El objetivo de **ozsh** es proporcionar un entorno de trabajo rápido, mantenibl
 
 ![License](https://img.shields.io/badge/license-GPLv3-blue.svg)
 ![Shell](https://img.shields.io/badge/shell-zsh-green.svg)
-![Platform](https://img.shields.io/badge/platform-Debian%2013%2B-red.svg)
+![Platform](https://img.shields.io/badge/platform-Debian%2013%2B%20%7C%20Fedora%2042%2B-red.svg)
+
+🌐 **Idiomas:** Español | [English](README.en.md)
 
 ---
 
@@ -65,11 +67,9 @@ Cada archivo tiene una única responsabilidad y todo el código puede entenderse
 
 Actualmente el proyecto soporta oficialmente:
 
-* Debian 13 y sus deribados.
+* Debian 13 y sus derivados.
 * Fedora 42 y familiares.
 * Conexión a Internet durante la instalación.
-
-El soporte para Fedora está previsto en futuras versiones.
 
 ---
 
@@ -141,6 +141,7 @@ ozsh/
 ├── modules/       # Módulos del prompt
 ├── plugins/       # Integración con herramientas
 ├── externos/      # Plugins descargados automáticamente
+├── media/         # Recursos gráficos (capturas, etc.)
 ├── install.sh
 ├── LICENSE
 ├── README.md
@@ -187,14 +188,14 @@ La configuración está organizada por responsabilidad, por lo que resulta senci
 
 ## 🖥️ Vista previa
 
+![Prompt de ozsh con JetBrainsMono Nerd Font](media/ozsh.jpg)
+
 ```text
 󰥔 2026-06-28 22:41:12   ⏱ 1.24s   ✘127   󰌘 SSH
 
-user ~/projects/homelab   main*  🐍 venv  🐳
+user ~/projects/homelab   main*  🐍 venv  🐳
 ❯
 ```
-
-> **Próximamente:** captura de pantalla del prompt utilizando JetBrainsMono Nerd Font.
 
 ---
 
