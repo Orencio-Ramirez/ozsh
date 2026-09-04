@@ -1,87 +1,117 @@
 # ozsh
 
-Modular **Zsh** configuration aimed at system administrators, DevOps engineers, and advanced Linux users.
+Modular **Zsh configuration for Linux**. ozsh combines an informative prompt, terminal navigation, history, keybindings, and small integrations for daily work with Git, Python, Docker, and Terraform.
 
-The goal of **ozsh** is to provide a fast, maintainable, and predictable working environment, avoiding heavy frameworks and keeping a simple architecture based on independent modules.
+It is not a framework or a standalone distribution: it is a collection of `.zsh` files loaded from `~/.zshrc` by the installer.
 
 ![License](https://img.shields.io/badge/license-GPLv3-blue.svg)
 ![Shell](https://img.shields.io/badge/shell-zsh-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Debian%2013%2B%20%7C%20Fedora%2042%2B-red.svg)
+![Version](https://img.shields.io/badge/version-0.4-orange.svg)
+
 
 🌐 **Languages:** [Español](README.md) | English
 
+## 🤖 Development and translation
+
+ozsh is under active development and is being built with the assistance of artificial intelligence tools. Technical decisions, code review, and validation remain part of the project's development process.
+
+A complete English translation of the project is being considered and will be introduced progressively. `README.en.md` is currently the available parallel reference.
+
 ---
 
-## 🚀 Features
+## 🚀 What it includes
 
 ### Prompt
 
-* Clean two-line design.
+The prompt is displayed over two lines and includes, when applicable:
+
 * Date and time.
-* Execution time of the last command.
-* Visible exit code.
+* The last command's exit code when it is not zero.
+* The previous command's execution time.
+* User, shortened host name, and current directory.
 * SSH session indicator.
-* Root user detection.
-* Git branch and status.
-* Python virtual environment.
-* Docker project detection.
+* Git branch and modified status.
+* Python or Conda virtual environment.
+* File-based detection of Docker and Terraform projects.
+* Visual distinction for the root user.
 
-### User experience
+Docker and Terraform detection does not connect to their services or execute those tools: it looks for characteristic files in the current directory.
 
-* Advanced autocompletion.
-* Fish-style autosuggestions.
-* Real-time syntax highlighting.
-* FZF integration.
-* Smart navigation via Zoxide.
-* Automatic Direnv integration.
-* Modern replacement for `ls` via Eza.
-* Enhanced file viewing via Bat.
+### Terminal
+
+* Completion through `zsh-completions`.
+* Autosuggestions and syntax highlighting.
+* Shared, immediate history with up to 100,000 entries.
+* History search with `Ctrl+R`.
+* File search with `Ctrl+T`.
+* Directory search with `Alt+C`.
+* Substring history search with the up and down arrows.
+* Smart navigation through Zoxide.
+* Automatic Direnv hook.
+
+### Commands and aliases
+
+* `ls`, `l`, `ll`, `la`, `lt`, `ltt`, and `lsd`: Eza views.
+* `cat` and `ccat`: Bat-based file viewing.
+* `cd`: navigation through Zoxide.
+* `zd`: Zsh's traditional `cd`.
+* `zf`: interactive selection among directories known by Zoxide.
+
+The `cat`, `ls`, and `cd` aliases change their usual behavior in the interactive session.
 
 ---
 
-## 🧠 Philosophy
+## 🧹 Bulk filename cleanup
 
-ozsh follows three core principles:
+The `plugins/zmv.zsh` file includes `limpiar-nombres`, a function built on `zmv` for bulk file renaming.
 
-* **The prompt never computes information.**
-* **State is updated through hooks.**
-* **Each module has a single responsibility.**
+The function can:
 
-This keeps the prompt fast and easy to maintain.
+* Remove a literal text string.
+* Remove content inside parentheses `()` and square brackets `[]`.
+* Collapse repeated spaces and trim extra spaces.
+* Remove a specified number of characters from the beginning or end.
+* Remove text before the first digit.
+* Pad one- or two-digit numbers with zeroes to three positions.
+* Replace the space after a digit with ` - `.
 
----
+The file extension is kept separate from these transformations. Only regular files are processed, and `zmv` displays the operations it performs.
 
-## ❓ Why ozsh?
+Enable it in the current session with:
 
-There are excellent frameworks out there, such as Oh My Zsh, Prezto, Zinit, or Antidote.
+```zsh
+source plugins/zmv.zsh
+limpiar-nombres --ayuda
+```
 
-ozsh takes a different approach.
+Always test with `--simular` before applying a rename:
 
-Instead of providing hundreds of plugins and layers of abstraction, it focuses on offering a small, modular, and fully explicit configuration.
+```zsh
+limpiar-nombres --simular '*.jpg'
+limpiar-nombres --simular --eliminar 'copy' --prefijo --guion '*.mp4'
+```
 
-Each file has a single responsibility, and all the code can be easily understood without needing to learn a framework.
+Without `--simular`, the function applies the changes immediately. The default pattern is `*`; hidden files are excluded unless the pattern names them explicitly or `glob_dots` is enabled.
 
 ---
 
 ## 📋 Requirements
 
-The project currently officially supports:
+The installer detects distribution families through `/etc/os-release` and has explicit paths for:
 
-* Debian 13 and its derivatives.
-* Fedora 42 and related distributions.
-* Internet connection during installation.
+* Debian, Ubuntu, and derivatives that correctly declare their family.
+* Fedora and derivatives that correctly declare their family.
 
----
+You also need:
 
-## 🔤 Recommended font
+* An existing checkout at `$HOME/ozsh`.
+* `curl` available to check access to GitHub.
+* `sudo` privileges.
+* An Internet connection.
+* An `es_ES.UTF-8` locale, which is set by the generated configuration.
 
-ozsh uses **Nerd Fonts** icons to represent system status and improve prompt readability.
-
-Recommended:
-
-* **JetBrainsMono Nerd Font**
-
-Without a Nerd Font installed, the configuration will still work correctly, but some icons will show up as unrendered Unicode characters.
+There is no tested version matrix. The installer does not directly support Arch, openSUSE, Alpine, Gentoo, macOS, BSD, or Windows.
 
 ---
 
@@ -89,100 +119,75 @@ Without a Nerd Font installed, the configuration will still work correctly, but 
 
 ```bash
 git clone https://github.com/Orencio-Ramirez/ozsh.git "$HOME/ozsh"
-
 cd "$HOME/ozsh"
-
 chmod +x install.sh
-
 ./install.sh
 ```
 
 The installer:
 
-* Automatically detects the operating system.
-* Installs the required dependencies.
-* Downloads or updates external plugins.
-* Generates a clean `.zshrc`.
-* Sets Zsh as the default shell.
-* Can be run multiple times safely.
+1. Checks the repository and reads the version from `VERSION`.
+2. Checks the connection to GitHub and requests privileges.
+3. Installs `zsh`, `git`, `curl`, `bat`, `eza`, `fzf`, `direnv`, and `zoxide` through `apt` or `dnf`.
+4. Clones or updates four external plugins under `externos/`.
+5. Backs up the existing `~/.zshrc`, if present.
+6. Generates a new `~/.zshrc` and sets Zsh as the default shell.
 
-After installation, it's recommended to log out and log back in.
+The installation log is stored at `~/ozsh-install.log`. Each run regenerates `~/.zshrc`; review the backup before reinstalling if you have custom configuration. External plugin updates use `git reset --hard` and discard local changes in those clones.
+
+After installation, log out and back in to use Zsh as the default shell.
 
 ---
 
-## 📦 Dependencies
+## 📦 Components
 
-### Installed via the package manager
+### Installed dependencies
 
-* zsh
-* git
-* curl
-* fzf
-* eza
-* bat
-* direnv
-* zoxide
+```text
+zsh  git  curl  bat  eza  fzf  direnv  zoxide
+```
+
+On Debian/Ubuntu, Bat's executable may be named `batcat`; the configuration supports both variants.
 
 ### External plugins
 
-* zsh-completions
-* zsh-autosuggestions
-* zsh-syntax-highlighting
-* zsh-history-substring-search
+The installer obtains these repositories:
 
----
+* `zsh-users/zsh-completions`
+* `zsh-users/zsh-autosuggestions`
+* `zsh-users/zsh-syntax-highlighting`
+* `zsh-users/zsh-history-substring-search`
 
-## 📁 Project structure
+### Structure
 
 ```text
-ozsh/
-
-├── core/          # Base configuration
-├── modules/       # Prompt modules
-├── plugins/       # Tool integrations
-├── externos/      # Automatically downloaded plugins
-├── media/         # Graphic assets (screenshots, etc.)
-├── install.sh
-├── LICENSE
-├── README.md
-└── VERSION
+core/       Options, variables, colors, icons, history, hooks, prompt, and keys
+modules/    Git, Docker, Python, SSH, root, timer, Terraform, and hostname
+plugins/    FZF, Bat, Eza, Zoxide, Direnv, and Zsh integrations and aliases
+externos/   Cloned external plugins
+media/      Graphic assets
+install.sh  Installer and .zshrc generator
+VERSION     Project version
 ```
 
----
-
-## ⚡ Performance
-
-The main goal of ozsh is to keep the prompt fast, with a constant cost.
-
-## 🏗️ Design
-
-### Avoided
-
-* Heavy frameworks.
-* Logic inside the prompt.
-* Monolithic code.
-* Unnecessary dependencies.
-
-### Prioritized
-
-* Modularity.
-* Simplicity.
-* Readability.
-* Low resource usage.
-* Long-term maintainability.
+The default installation loads every file in `core`, seven modules, and nine plugins. `modules/hostname.zsh` and `plugins/zmv.zsh` exist but are not loaded automatically.
 
 ---
 
 ## 🎨 Customization
 
-The main visual elements can be modified from:
+Main customization points:
 
 ```text
-core/colors.zsh
-core/icons.zsh
+core/colors.zsh       Colors
+core/icons.zsh        Icons
+core/options.zsh      Zsh options
+core/history.zsh      History
+core/keybindings.zsh  Keyboard shortcuts
+plugins/*.zsh         Integrations and aliases
 ```
 
-The configuration is organized by responsibility, making it easy to add, remove, or modify modules.
+The generated configuration sets `EDITOR` and `VISUAL` to `nano`, as well as `LANG` and `LC_ALL` to `es_ES.UTF-8`. Change them after installation if needed, or adjust the `.zshrc` generator.
 
 ---
 
@@ -190,29 +195,18 @@ The configuration is organized by responsibility, making it easy to add, remove,
 
 ![ozsh prompt with JetBrainsMono Nerd Font](media/ozsh.jpg)
 
-```text
-󰥔 2026-06-28 22:41:12   ⏱ 1.24s   ✘127   󰌘 SSH
-
-user ~/projects/homelab   main*  🐍 venv  🐳
-❯
-```
+Prompt icons require a font with compatible glyphs, such as **JetBrainsMono Nerd Font**. Without one, the configuration may display missing or unreadable symbols.
 
 ---
 
 ## 📌 Project status
 
-ozsh is under active development.
+Current version: `0.4`.
 
-The main goals of the project are:
-
-* Speed.
-* Modularity.
-* Reproducibility.
-* Easy-to-maintain code.
-* A working environment aimed at system administration and DevOps.
+ozsh is still evolving. There are no automated tests for installation, distribution compatibility, or prompt rendering; capabilities and configuration may change between versions.
 
 ---
 
 ## 📄 License
 
-This project is distributed under the terms of the **GNU General Public License v3.0 (GPL-3.0)**.
+Distributed under the **GNU General Public License v3.0 (GPL-3.0)**.

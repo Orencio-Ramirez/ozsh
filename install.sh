@@ -382,6 +382,7 @@ source "$ZSH_CONFIG/plugins/completions.zsh"
 source "$ZSH_CONFIG/plugins/autosuggestions.zsh"
 source "$ZSH_CONFIG/plugins/syntax-highlighting.zsh"
 source "$ZSH_CONFIG/plugins/history-substring-search.zsh"
+source "$ZSH_CONFIG/plugins/zmv.zsh"
 EOF
     success ".zshrc generado"
 }
