@@ -10,9 +10,9 @@
 autoload -Uz zmv
 
 alias zmv='noglob zmv'
-alias limpiar_parentesis="noglob zmv '(*).(*)' '${${${1//\[[^]]#\]/}//\([^)]#\)/}//./ }.$2'"
-alias limpiar_espacio_final="noglob zmv '(*) .(*)' '$1.$2'"
-alias agregar_contador="noglob zmv '*' '${(l:3::0:)$((COUNTER++))} - $f'"
+alias limpiar_parentesis='noglob zmv '(*).(*)' '${${${1//\[[^]]#\]/}//\([^)]#\)/}//./ }.$2''
+alias limpiar_espacio_final='noglob zmv '(*) .(*)' '$1.$2''
+alias agregar_contador='noglob zmv '*' '${(l:3::0:)$((COUNTER++))} - $f''
 setopt extended_glob
 
 
