@@ -12,6 +12,10 @@ setopt extended_glob
 
 alias zmv='noglob zmv'
 
+###########################################################################
+# Funciones de limpieza de nombres para zmv
+###########################################################################
+
 # ------------------------------------------------------------------------
 # limpiar_nombres
 # Aplica, en orden, una serie de pasadas de zmv para dejar los nombres de
@@ -21,22 +25,37 @@ alias zmv='noglob zmv'
 limpiar_nombres() {
     setopt localoptions extendedglob nullglob
 
+    # NOTA sobre el último paso (capitalizar): ${(C)...} depende del
+    # locale del sistema para saber qué cuenta como "letra". Si tu
+    # servidor tiene el locale en C/POSIX (comprueba con `locale`), las
+    # vocales acentuadas y la ñ no se reconocen como parte de la palabra
+    # y la capitalización sale mal (p. ej. "tiburón" -> "TiburóN"). La
+    # solución es tener un locale UTF-8 activo en el sistema (por ejemplo
+    # es_ES.UTF-8: `sudo locale-gen es_ES.UTF-8` y exportarlo en tu shell),
+    # no algo que forcemos aquí dentro de la función, ya que forzar el
+    # locale sólo para esta función puede causar comportamiento inestable
+    # dependiendo de qué locales tenga generados el sistema.
+
+    # Cada paso puede no tener ninguna coincidencia (por ejemplo, si ya no
+    # quedan paréntesis, o no hay espacios dobles). zmv termina con código
+    # de error en ese caso; el "|| true" evita que la función se detenga
+    # y el "2>/dev/null" silencia el mensaje "zmv: no files matched".
+
     # Eliminar paréntesis, corchetes y su contenido; puntos internos -> espacio
-    noglob zmv -Q '(*).(*)' '${${${1//\[[^]]#\]/}//\([^)]#\)/}//./ }.$2'
+    noglob zmv '(*).(*)' '${${${1//\[[^]]#\]/}//\([^)]#\)/}//./ }.$2' 2>/dev/null || true
 
     # Cambiar espacios dobles por simples
-    noglob zmv -Q '(*)  (*).(*)' '$1 $2.$3'
+    noglob zmv '(*)  (*).(*)' '$1 $2.$3' 2>/dev/null || true
 
     # Eliminar espacio al final del nombre (antes de la extensión)
-    noglob zmv -Q '(*) .(*)' '$1.$2'
+    noglob zmv '(*) .(*)' '$1.$2' 2>/dev/null || true
 
     # Eliminar espacio al principio del nombre
-    noglob zmv -Q ' (*).(*)' '$1.$2'
+    noglob zmv ' (*).(*)' '$1.$2' 2>/dev/null || true
 
     # Capitalizar la primera letra de cada palabra
-    noglob zmv -Q '(*).(*)' '${(C)1}.${2}'
+    noglob zmv '(*).(*)' '${(C)1}.${2}' 2>/dev/null || true
 }
-alias limpiar_nombres='limpiar_nombres'
 
 # ------------------------------------------------------------------------
 # eliminar_cadena <parametro>
@@ -44,6 +63,8 @@ alias limpiar_nombres='limpiar_nombres'
 # directorio actual.
 # ------------------------------------------------------------------------
 eliminar_cadena() {
+    setopt localoptions extendedglob
+
     if [[ -z "$1" ]]; then
         print -u2 "Uso: eliminar_cadena <cadena_a_eliminar>"
         return 1
@@ -52,11 +73,10 @@ eliminar_cadena() {
     local cadena="$1"
     # Escapamos los caracteres especiales de glob para que zmv la trate
     # como texto literal y no como patrón.
-    local cadena_esc="${(q)cadena}"
+    local cadena_esc="${(b)cadena}"
 
-    noglob zmv -Q "(*)${cadena_esc}(*).(*)" '$1$2.$3'
+    noglob zmv "(*)${cadena_esc}(*).(*)" '$1$2.$3'
 }
-alias eliminar_cadena='eliminar_cadena'
 
 # ------------------------------------------------------------------------
 # agregar_contador [parametro]
@@ -70,9 +90,8 @@ agregar_contador() {
         return 1
     }
 
-    noglob zmv -Q '(*)' '${(l:3::0:)$((COUNTER++))} - $1'
+    noglob zmv '(*)' '${(l:3::0:)$((COUNTER++))} - $1'
 }
-alias agregar_contador='agregar_contador'
 
 # ------------------------------------------------------------------------
 # normalizar_nombres <parametro>
@@ -80,17 +99,22 @@ alias agregar_contador='agregar_contador'
 # "T01 E02 - Resto del título.ext", eliminando la cadena <parametro>.
 # ------------------------------------------------------------------------
 normalizar_nombres() {
+    setopt localoptions extendedglob
+
     if [[ -z "$1" ]]; then
         print -u2 "Uso: normalizar_nombres <cadena_a_eliminar>"
         return 1
     fi
 
-    local cadena_esc="${(q)1}"
+    # Quitamos espacios sobrantes al final del parámetro, ya que la
+    # plantilla ya añade un único espacio de separación antes del patrón
+    # de temporada/episodio (evita el doble espacio "Vegas  11x01").
+    local cadena="${1%%[[:space:]]##}"
+    local cadena_esc="${(b)cadena}"
 
-    noglob zmv -Q "${cadena_esc} ([0-9]##)x([0-9]##) (*)" \
+    noglob zmv "${cadena_esc} ([0-9]##)x([0-9]##) (*)" \
         'T${(l:2::0:)1} E${(l:2::0:)2} - $3'
 }
-alias normalizar_nombres='normalizar_nombres'
 
 # ------------------------------------------------------------------------
 # corregir_letras
@@ -112,15 +136,14 @@ corregir_letras() {
         'Ãº' 'ú'  'ãº' 'ú'
         'Ã±' 'ñ'  'ã±' 'ñ'
         'Ã¼' 'ü'  'ã¼' 'ü'
-        'Ã'  'Á'
-        'Ã‰' 'É'
-        'Ã'  'Í'
-        'Ã“' 'Ó'
-        'Ãš' 'Ú'
-        'Ã‘' 'Ñ'
         'Ã¤' 'ä'
         'Â¿' '¿'
         'Â¡' '¡'
+        # Nota: las vocales acentuadas en MAYÚSCULA (Á, É, Í, Ó, Ú, Ñ) no se
+        # incluyen porque, al codificarlas en UTF-8 y reinterpretarlas como
+        # Latin-1, el segundo byte cae en la zona de caracteres de control
+        # (no imprimibles), por lo que no aparecen como una secuencia de
+        # texto reconocible en un nombre de archivo real.
     )
 
     local f nuevo clave valor
@@ -135,4 +158,3 @@ corregir_letras() {
         fi
     done
 }
-alias corregir_letras='corregir_letras'
