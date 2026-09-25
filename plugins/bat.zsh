@@ -33,7 +33,7 @@ fi
 ###########################################################################
 
 # Opciones comunes para todos los comandos bat
-export BAT_OPTIONS="--style=default --paging=never"
+export BAT_OPTIONS="--style=default --paging=auto"
 
 ###########################################################################
 # Alias principales
@@ -41,7 +41,7 @@ export BAT_OPTIONS="--style=default --paging=never"
 
 # Alias estándar
 alias cat="$BAT_CMD $BAT_OPTIONS"
-alias ccat="$BAT_CMD --style=plain"
+alias ccat="$BAT_CMD --style=plain --pagin=never"
 # Mantener acceso al ejecutable con opciones bajo el nombre "bat",
 # independientemente de cómo se llame el binario real.
 alias bat="$BAT_CMD $BAT_OPTIONS"
