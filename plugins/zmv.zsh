@@ -44,6 +44,9 @@ limpiar_nombres() {
     # Eliminar paréntesis, corchetes y su contenido; puntos internos -> espacio
     noglob zmv '(*).(*)' '${${${1//\[[^]]#\]/}//\([^)]#\)/}//./ }.$2' 2>/dev/null || true
 
+    #Eliminar simbolos problematicos
+    noglob zmv '(*).(*)' '${1:gs/¿//:gs/¡//:gs#:##:gs/?//:gs/\!//:gs/º//:gs/ª//}.$2' 2>/dev/null || true
+    
     # Cambiar espacios dobles por simples
     noglob zmv '(*)  (*).(*)' '$1 $2.$3' 2>/dev/null || true
 
