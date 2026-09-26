@@ -41,7 +41,7 @@ export BAT_OPTIONS="--style=default --paging=auto"
 
 # Alias estándar
 alias cat="$BAT_CMD $BAT_OPTIONS"
-alias ccat="$BAT_CMD --style=plain --pagin=never"
+alias ccat="$BAT_CMD --style=plain --paging=never"
 # Mantener acceso al ejecutable con opciones bajo el nombre "bat",
 # independientemente de cómo se llame el binario real.
 alias bat="$BAT_CMD $BAT_OPTIONS"
