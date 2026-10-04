@@ -45,7 +45,7 @@ limpiar_nombres() {
     noglob zmv '(*).(*)' '${${${1//\[[^]]#\]/}//\([^)]#\)/}//./ }.$2' 2>/dev/null || true
 
     #Eliminar simbolos problematicos
-    noglob zmv '(*).(*)' '${1:gs/¿//:gs/¡//:gs#:##:gs/?//:gs/\!//:gs/º//:gs/ª//}.$2' 2>/dev/null || true
+    #noglob zmv '(*).(*)' '${1:gs/¿//:gs/¡//:gs#:##:gs/?//:gs/\!//:gs/º//:gs/ª//}.$2' 2>/dev/null || true
     
     # Cambiar espacios dobles por simples
     noglob zmv '(*)  (*).(*)' '$1 $2.$3' 2>/dev/null || true
@@ -116,7 +116,7 @@ normalizar_nombres() {
     local cadena_esc="${(b)cadena}"
 
     noglob zmv "${cadena_esc} ([0-9]##)x([0-9]##) (*)" \
-        'T${(l:2::0:)1} E${(l:2::0:)2} - $3'
+        'S${(l:2::0:)1}E${(l:2::0:)2} $3'
 }
 
 # ------------------------------------------------------------------------
