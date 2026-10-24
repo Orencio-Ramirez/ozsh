@@ -44,9 +44,6 @@ limpiar_nombres() {
     # Eliminar paréntesis, corchetes y su contenido; puntos internos -> espacio
     noglob zmv '(*).(*)' '${${${1//\[[^]]#\]/}//\([^)]#\)/}//./ }.$2' 2>/dev/null || true
 
-    #Eliminar simbolos problematicos
-    #noglob zmv '(*).(*)' '${1:gs/¿//:gs/¡//:gs#:##:gs/?//:gs/\!//:gs/º//:gs/ª//}.$2' 2>/dev/null || true
-    
     # Cambiar espacios dobles por simples
     noglob zmv '(*)  (*).(*)' '$1 $2.$3' 2>/dev/null || true
 
@@ -99,7 +96,7 @@ agregar_contador() {
 # ------------------------------------------------------------------------
 # normalizar_nombres <parametro>
 # Normaliza nombres del tipo "<parametro> 1x02 Resto del título.ext" a
-# "T01 E02 - Resto del título.ext", eliminando la cadena <parametro>.
+# "S01E02 Resto del título.ext", eliminando la cadena <parametro>.
 # ------------------------------------------------------------------------
 normalizar_nombres() {
     setopt localoptions extendedglob
